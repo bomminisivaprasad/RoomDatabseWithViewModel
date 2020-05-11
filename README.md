@@ -107,4 +107,68 @@ We need create a new Kotlin interface. Let’s name this as StudentDao.
 
 
         }   
+        
+ This interface should be annotated with @Dao annotation. Room will recognize this interface as a Data Access Object interface after seeing this @Dao annotation.
+Function names are not important. Room library generates corresponding codes to implement the functions by reading its annotation(@Insert,@Update,@Delete,@Query), its parameters and return types.
+Functions can be defined with or without return types. (Return values are useful for verification)
+Since room provides direct support for Kotlin coroutines, room facilitates us to write these functions as suspending functions with suspend modifier.
+getAllSudents() funciton returns a LiveData of list of Student. Therefore we don’t need to use a background thread to execute that function. So we don’t neeed to write it as a suspending funciton.
 
+#### Create A RoomDatabase class
+    @Database(entities = [StudentsEntity::class],version = 1)
+        abstract class StudentDatabase:RoomDatabase() {
+        abstract val studentDAO:StudentDAO
+        companion object{
+            @Volatile
+            private var INSTANCE:StudentDatabase?=null
+            fun getInstance(context: Context):StudentDatabase{
+                synchronized(this){
+                    var instance= INSTANCE
+                    if(instance==null){
+                        instance=Room.databaseBuilder(context.applicationContext,StudentDatabase::class.java,"Student_database").build()
+                    }
+                    return instance
+                }
+            }
+        }
+    }
+
+We should annotate this with @Database annotation. Here we need to provide the list of entity classes(in this project we have only one entity class). Then provide the version number of the database. This version number is important when we are migrating the data base from one version to another.
+
+Then , we need to declare an abstract reference for the DAO interface. In this small demo project we have only one entity class and a corresponding DAO interface. If we had more entity classes, we would have listed them all here and defined the references for corresponding DAOs here.
+
+Actually this is a boilerplate code part. You don’t have to remember this. You can copy paste this code part to all your room database classes and change the names.
+
+#### Repository class
+
+In this project , We are following MVVM architecture. MVVM is the recommended best architecture for Android Development by Google.
+
+MVVM stand for Model, View and View Model. Model means all data management related components. Model has local database related components, remote data sources related components and a repository. For this small project we are not going to use remote data sources. We have already created an entity class, a DAO interface and a database class which completes this part of the MVVM architecture.
+
+Now , We are going to create a repository class for this project.
+
+The purpose of a repository class is to provide a clean API for view models to easily get and send data.
+
+As Google documentation says , You can consider repositories to be mediators between different data sources, such as local databases, web services, and caches.
+
+In our simple project we only have a local database, some of you might think, why should we create an intermediate repository class? Can’t we directly communicate with the DAO from the view model. But my goal here is to teach you about MVVM architecture.
+
+    class StudentRepository(private val dao: StudentDAO) {
+        val student=dao.getAllStudents()
+        fun insert(studentsEntity: StudentsEntity)
+        {
+            return dao.insetstudent(studentsEntity)
+        }
+
+        fun update(studentsEntity: StudentsEntity){
+            return dao.updatestudent(studentsEntity)
+        }
+        fun delete(studentsEntity: StudentsEntity){
+            return dao.delectstudent(studentsEntity)
+        }
+        fun clearAll(studentsEntity: StudentsEntity){
+            return dao.deletall()
+        }
+    }
+  #### View Mode Class
+  
