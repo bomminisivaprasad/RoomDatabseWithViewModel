@@ -170,5 +170,10 @@ In our simple project we only have a local database, some of you might think, wh
             return dao.deletall()
         }
     }
-  #### View Mode Class
+### Links
+https://codelabs.developers.google.com/codelabs/android-room-with-a-view-kotlin/#0
+https://codelabs.developers.google.com/codelabs/kotlin-android-training-room-database/index.html?index=..%2F..android-kotlin-fundamentals#4
+https://codelabs.developers.google.com/codelabs/advanced-kotlin-coroutines/#0
+https://developer.android.com/courses/kotlin-android-fundamentals/overview
+https://developer.android.com/courses/basic-android-kotlin-training/overview
   
